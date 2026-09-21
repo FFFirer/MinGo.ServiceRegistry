@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/MinGo.ServiceRegistry.Hosting/MinGo.ServiceRegistry.Hosting.csproj" />
+    <Project Path="src/MinGo.ServiceRegistry.Server/MinGo.ServiceRegistry.Server.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/MinGo.ServiceRegistry.IntegrationTests/MinGo.ServiceRegistry.IntegrationTests.csproj" />
+    <Project Path="tests/MinGo.ServiceRegistry.ProtocolTests/MinGo.ServiceRegistry.ProtocolTests.csproj" />
+    <Project Path="tests/MinGo.ServiceRegistry.Server.Tests/MinGo.ServiceRegistry.Server.Tests.csproj" />
+  </Folder>
+</Solution>

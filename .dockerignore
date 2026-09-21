@@ -1,0 +1,11 @@
+# Keep the container build context small. The Dockerfile only copies nuget.config, the repo-root
+# MSBuild props, and src/, so everything else can be excluded.
+**/bin/
+**/obj/
+.git/
+.github/
+.vs/
+artifacts/
+publish/
+TestResults/
+tests/

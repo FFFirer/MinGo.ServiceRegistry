@@ -1,0 +1,24 @@
+## .NET
+bin/
+obj/
+[Dd]ebug/
+[Rr]elease/
+artifacts/
+*.user
+*.suo
+.vs/
+.vscode/
+*.nupkg
+*.snupkg
+
+## Rider / ReSharper
+.idea/
+_ReSharper*/
+
+## OS
+.DS_Store
+Thumbs.db
+
+## Build logs
+*.binlog
+*.log

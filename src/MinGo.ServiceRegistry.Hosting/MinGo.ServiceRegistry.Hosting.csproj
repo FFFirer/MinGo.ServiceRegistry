@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>MinGo.ServiceRegistry.Hosting</AssemblyName>
+    <RootNamespace>MinGo.ServiceRegistry.Hosting</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MinGo.ServiceRegistry.Abstractions" />
+  </ItemGroup>
+
+</Project>

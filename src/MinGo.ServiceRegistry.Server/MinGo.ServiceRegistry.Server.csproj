@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <AssemblyName>MinGo.ServiceRegistry.Server</AssemblyName>
+    <RootNamespace>MinGo.ServiceRegistry.Server</RootNamespace>
+    <UserSecretsId>mingo-service-registry-server</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MinGo.ServiceRegistry.Hosting\MinGo.ServiceRegistry.Hosting.csproj" />
+  </ItemGroup>
+
+</Project>

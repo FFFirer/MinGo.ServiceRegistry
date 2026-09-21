@@ -1,0 +1,11 @@
+<Project>
+
+  <PropertyGroup>
+    <VersionPrefix>0.1.0</VersionPrefix>
+    <Authors>MinGo</Authors>
+    <Company>MinGo</Company>
+    <Product>MinGo Service Registry Server</Product>
+    <Copyright>Copyright (c) MinGo</Copyright>
+  </PropertyGroup>
+
+</Project>

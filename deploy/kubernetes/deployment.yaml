@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: service-registry
+  labels:
+    app.kubernetes.io/name: service-registry
+    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/component: registry
+spec:
+  # MVP is in-memory and single-node: replicas do NOT share state. Keep at 1 until a
+  # distributed IServiceRegistryStore implementation is available.
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: service-registry
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: service-registry
+        app.kubernetes.io/version: "0.1.0"
+    spec:
+      containers:
+        - name: service-registry
+          image: mingo/service-registry:0.1.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: ASPNETCORE_URLS
+              value: "http://+:8080"
+            # Override registry tuning via ServiceRegistry__<Key> if desired, e.g.:
+            # - name: ServiceRegistry__DefaultLeaseTtlSeconds
+            #   value: "30"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
+          securityContext:
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
+            capabilities:
+              drop: ["ALL"]
