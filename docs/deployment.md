@@ -4,8 +4,8 @@ Registry Server 可作为普通 .NET 进程运行，也可打包为容器镜像�
 
 > **前置：Abstractions 包来源**
 > Server 依赖 NuGet 包 `MinGo.ServiceRegistry.Abstractions`（由 `service-registry-sdk` 仓库产出）。
-> - CI/生产：该包已发布到真实 feed（nuget.org 或 GitHub Packages），`nuget.config` 指向即可还原。
-> - 本地容器构建：该包尚未公开发布时，先把 SDK 的 Abstractions 打包到一个本地目录（见 SDK 仓库 `local/build-local.ps1`），再通过 `EXTRA_NUGET_SOURCE` 构建参数把该目录作为额外 NuGet 源传入（见下文）。
+> - CI/生产（默认）：该包已发布到 nuget.org，`Directory.Packages.props` 固定引用 `0.1.1`，`nuget.config` 默认即从 nuget.org 还原；如使用私有 GitHub Packages feed，可设置仓库变量 `ABSTRACTIONS_NUGET_URL`（CI）或 `EXTRA_NUGET_SOURCE`（容器构建）。
+> - 本地容器构建（可选回退）：如需验证尚未发布的 SDK 改动，先把 Abstractions 打包到一个本地目录（见 SDK 仓库 `local/build-local.ps1`），再通过 `EXTRA_NUGET_SOURCE` 构建参数把该目录作为额外 NuGet 源传入（见下文）。
 
 ## 直接运行 / 发布
 

@@ -6,8 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- Shared protocol/domain contract (consumed from the local or real NuGet feed) -->
-    <PackageVersion Include="MinGo.ServiceRegistry.Abstractions" Version="0.1.0" />
+    <!-- Shared protocol/domain contract (consumed from nuget.org) -->
+    <PackageVersion Include="MinGo.ServiceRegistry.Abstractions" Version="0.1.1" />
 
     <!-- Runtime / Extensions -->
     <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.12" />

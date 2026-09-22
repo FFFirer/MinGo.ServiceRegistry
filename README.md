@@ -57,7 +57,7 @@ dotnet build ServiceRegistry.Server.slnx
 dotnet test  ServiceRegistry.Server.slnx
 ```
 
-> Server 依赖 NuGet 包 `MinGo.ServiceRegistry.Abstractions`。本地开发时由工作区引导脚本 `../local/build-local.ps1` 将其打包到本地 feed 并注册机器级源 `mingo-local`；CI 则从真实 feed 还原。详见 [`docs/deployment.md`](docs/deployment.md)。
+> Server 依赖 NuGet 包 `MinGo.ServiceRegistry.Abstractions`，该包已发布到 nuget.org，`Directory.Packages.props` 固定引用 `0.1.1`，默认即从 nuget.org 还原。本地开发如需使用未发布的改动，可由工作区引导脚本 `../local/build-local.ps1` 将其打包到本地 feed 并注册机器级源 `mingo-local`（该 feed 不含 `0.1.1` 时不会遮蔽线上包）。详见 [`docs/deployment.md`](docs/deployment.md)。
 
 ## 部署
 
