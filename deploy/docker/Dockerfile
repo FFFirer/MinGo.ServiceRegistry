@@ -29,7 +29,8 @@ FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app
 COPY --from=build /app ./
 
-# Override the development Urls (localhost:5080) so the container binds all interfaces on 8080.
+# Bind all interfaces on 8080 inside the container (appsettings.json carries no Urls key,
+# so this environment variable is the effective listen address).
 ENV ASPNETCORE_URLS=http://+:8080
 EXPOSE 8080
 
