@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json;
 using MinGo.ServiceRegistry.Abstractions;
 using Xunit;
 
@@ -173,5 +174,37 @@ public sealed class RegistryApiIntegrationTests
         var response = await client.GetAsync("/health");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Status_endpoint_returns_runtime_snapshot()
+    {
+        await using var factory = new RegistryWebApplicationFactory();
+        using var client = factory.CreateClient();
+        await RegisterAsync(client, Registration(service: "svc-a", instance: "a1"));
+        await RegisterAsync(client, Registration(service: "svc-b", instance: "b1"));
+
+        var response = await client.GetAsync("/api/registry/status");
+
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadAsStringAsync();
+        using var document = JsonDocument.Parse(json);
+        var root = document.RootElement;
+
+        Assert.Equal(JsonValueKind.Object, root.ValueKind);
+        Assert.True(root.TryGetProperty("startedAt", out var startedAt));
+        Assert.Equal(JsonValueKind.String, startedAt.ValueKind);
+        Assert.True(root.TryGetProperty("uptimeSeconds", out var uptime));
+        Assert.True(uptime.GetInt64() >= 0);
+        Assert.Equal(2, root.GetProperty("services").GetInt32());
+        Assert.Equal(2, root.GetProperty("instances").GetInt32());
+
+        var config = root.GetProperty("config");
+        // RegistryWebApplicationFactory shortens the reaper interval to 1s; other knobs come from
+        // ServiceRegistryServerOptions defaults (15 / 5 / 300).
+        Assert.Equal(15, config.GetProperty("defaultLeaseTtlSeconds").GetInt32());
+        Assert.Equal(5, config.GetProperty("minLeaseTtlSeconds").GetInt32());
+        Assert.Equal(300, config.GetProperty("maxLeaseTtlSeconds").GetInt32());
+        Assert.Equal(1, config.GetProperty("reaperIntervalSeconds").GetInt32());
     }
 }

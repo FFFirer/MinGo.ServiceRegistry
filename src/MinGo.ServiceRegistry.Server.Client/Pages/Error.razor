@@ -1,0 +1,15 @@
+@page "/error"
+
+<PageTitle>Error - MinGo Registry</PageTitle>
+
+<div class="flex flex-col items-center justify-center py-24 gap-4 text-center">
+    <div class="text-6xl text-md-error">&#9888;</div>
+    <h1 class="text-md-headline text-md-on-surface">Something went wrong</h1>
+    <p class="max-w-md text-md-body text-md-on-surface-variant">
+        An unexpected error occurred while rendering this page. The incident has been logged on the server.
+    </p>
+    <div class="mt-2 flex gap-2">
+        <M3Button Variant="M3Button.ButtonVariant.Filled" Label="Back to services" Href="/" />
+        <M3Button Variant="M3Button.ButtonVariant.Outlined" Label="Reload" Href="/health-ui" />
+    </div>
+</div>

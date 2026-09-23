@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+
+  <PropertyGroup>
+    <AssemblyName>MinGo.ServiceRegistry.Server.Client</AssemblyName>
+    <RootNamespace>MinGo.ServiceRegistry.Server.Client</RootNamespace>
+    <!-- Client assets are consumed by the Server project; the client assembly itself is not a NuGet package. -->
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.Extensions.Http" />
+    <PackageReference Include="MinGo.ServiceRegistry.Abstractions" />
+  </ItemGroup>
+
+</Project>

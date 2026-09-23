@@ -1,0 +1,218 @@
+@page "/health-ui"
+@inject RegistryApiClient Api
+@implements IAsyncDisposable
+
+<PageTitle>Runtime - MinGo Registry</PageTitle>
+
+<div class="flex flex-col gap-6">
+    <div class="flex flex-wrap items-end gap-4">
+        <div>
+            <h1 class="text-md-headline text-md-on-surface">Health &amp; Runtime</h1>
+            <p class="mt-1 text-md-body text-md-on-surface-variant">
+                Server liveness, uptime, and effective lease/reaper configuration. Auto-refreshes every 5s.
+            </p>
+        </div>
+        <div class="ml-auto flex items-center gap-2">
+            <label class="inline-flex items-center gap-2 text-md-label text-md-on-surface-variant cursor-pointer select-none">
+                <input type="checkbox" @bind="AutoRefresh" class="h-4 w-4 rounded accent-md-primary" />
+                Auto refresh
+            </label>
+            <M3Button Variant="M3Button.ButtonVariant.Tonal" Label="Refresh" Icon="&#8635;" OnClick="RefreshAsync" Disabled="@Loading" />
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        <M3Card Headline="Server liveness" Variant="M3Card.CardVariant.Elevated">
+            <div class="flex items-center gap-3">
+                <M3Chip Tone="@(Healthy ? M3Chip.ChipTone.Success : M3Chip.ChipTone.Danger)"
+                        Label="@(Healthy ? "Healthy" : "Unreachable")"
+                        Icon="@(Healthy ? "\u2713" : "\u2715")" />
+                <span class="text-md-body-small text-md-on-surface-variant">GET /health</span>
+            </div>
+        </M3Card>
+
+        <M3Card Headline="Uptime" Variant="M3Card.CardVariant.Elevated">
+            @if (Snapshot is null)
+            {
+                <span class="text-md-body text-md-on-surface-variant opacity-60">-</span>
+            }
+            else
+            {
+                <div class="text-md-headline-small text-md-on-surface">@FormatUptime(Snapshot.UptimeSeconds)</div>
+                <div class="mt-1 text-md-body-small text-md-on-surface-variant">
+                    Started @Snapshot.StartedAt.UtcDateTime.ToString("u")
+                </div>
+            }
+        </M3Card>
+
+        <M3Card Headline="Store counts" Variant="M3Card.CardVariant.Elevated">
+            @if (Snapshot is null)
+            {
+                <span class="text-md-body text-md-on-surface-variant opacity-60">-</span>
+            }
+            else
+            {
+                <div class="flex items-baseline gap-6">
+                    <div>
+                        <div class="text-md-headline-small text-md-on-surface">@Snapshot.Services</div>
+                        <div class="text-md-body-small text-md-on-surface-variant">services</div>
+                    </div>
+                    <div>
+                        <div class="text-md-headline-small text-md-on-surface">@Snapshot.Instances</div>
+                        <div class="text-md-body-small text-md-on-surface-variant">instances</div>
+                    </div>
+                </div>
+            }
+        </M3Card>
+    </div>
+
+    <M3Card Headline="Effective configuration" SupportingText="Bound from the ServiceRegistry section of appsettings.json.">
+        @if (Snapshot is null)
+        {
+            <M3Progress Label="Loading status..." />
+        }
+        else
+        {
+            <dl class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-md-body">
+                <div class="rounded-md-sm bg-md-surface-container px-4 py-3">
+                    <dt class="text-md-label-small text-md-on-surface-variant">DefaultLeaseTtlSeconds</dt>
+                    <dd class="mt-1 text-md-title text-md-on-surface">@Snapshot.Config.DefaultLeaseTtlSeconds</dd>
+                </div>
+                <div class="rounded-md-sm bg-md-surface-container px-4 py-3">
+                    <dt class="text-md-label-small text-md-on-surface-variant">MinLeaseTtlSeconds</dt>
+                    <dd class="mt-1 text-md-title text-md-on-surface">@Snapshot.Config.MinLeaseTtlSeconds</dd>
+                </div>
+                <div class="rounded-md-sm bg-md-surface-container px-4 py-3">
+                    <dt class="text-md-label-small text-md-on-surface-variant">MaxLeaseTtlSeconds</dt>
+                    <dd class="mt-1 text-md-title text-md-on-surface">@Snapshot.Config.MaxLeaseTtlSeconds</dd>
+                </div>
+                <div class="rounded-md-sm bg-md-surface-container px-4 py-3">
+                    <dt class="text-md-label-small text-md-on-surface-variant">ReaperIntervalSeconds</dt>
+                    <dd class="mt-1 text-md-title text-md-on-surface">@Snapshot.Config.ReaperIntervalSeconds</dd>
+                </div>
+            </dl>
+        }
+    </M3Card>
+
+    @if (Error is not null)
+    {
+        <M3Card Variant="M3Card.CardVariant.Outlined" Headline="Last refresh failed" SupportingText="@Error" />
+    }
+</div>
+
+@code {
+    private StatusSnapshot? Snapshot { get; set; }
+    private bool Healthy { get; set; }
+    private bool Loading { get; set; }
+    private bool AutoRefresh { get; set; } = true;
+    private string? Error { get; set; }
+
+    private CancellationTokenSource? _loopCts;
+    private Task? _loopTask;
+    private bool _lastAutoRefresh = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAsync();
+        RestartLoop();
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        // Only restart when the AutoRefresh toggle actually changed; otherwise every render would
+        // tear down and rebuild the periodic timer.
+        if (!firstRender && _lastAutoRefresh != AutoRefresh)
+        {
+            _lastAutoRefresh = AutoRefresh;
+            RestartLoop();
+        }
+    }
+
+    private void RestartLoop()
+    {
+        _loopCts?.Cancel();
+        _loopCts?.Dispose();
+        _loopCts = null;
+        _loopTask = null;
+
+        if (!AutoRefresh)
+        {
+            return;
+        }
+
+        _loopCts = new CancellationTokenSource();
+        _loopTask = RunLoopAsync(_loopCts.Token);
+    }
+
+    private async Task RunLoopAsync(CancellationToken cancellationToken)
+    {
+        using var timer = new PeriodicTimer(TimeSpan.FromSeconds(5));
+        try
+        {
+            while (await timer.WaitForNextTickAsync(cancellationToken))
+            {
+                await LoadAsync(silent: true);
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // Normal shutdown path.
+        }
+    }
+
+    private Task RefreshAsync() => LoadAsync();
+
+    private async Task LoadAsync(bool silent = false)
+    {
+        if (!silent)
+        {
+            Loading = true;
+            StateHasChanged();
+        }
+
+        try
+        {
+            var health = await Api.GetHealthAsync();
+            var status = await Api.GetStatusAsync();
+            Healthy = health;
+            Snapshot = status ?? Snapshot;
+            Error = null;
+        }
+        catch (HttpRequestException ex)
+        {
+            Error = ex.Message;
+        }
+        finally
+        {
+            if (!silent)
+            {
+                Loading = false;
+            }
+        }
+    }
+
+    private static string FormatUptime(long seconds)
+    {
+        if (seconds < 60) return $"{seconds}s";
+        var ts = TimeSpan.FromSeconds(seconds);
+        if (ts.TotalHours < 1) return $"{ts.Minutes}m {ts.Seconds}s";
+        if (ts.TotalDays < 1) return $"{(int)ts.TotalHours}h {ts.Minutes}m";
+        return $"{ts.Days}d {ts.Hours}h {ts.Minutes}m";
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_loopCts is not null)
+        {
+            _loopCts.Cancel();
+            if (_loopTask is not null)
+            {
+                try { await _loopTask; } catch (OperationCanceledException) { }
+            }
+            _loopCts.Dispose();
+            _loopCts = null;
+            _loopTask = null;
+        }
+    }
+}

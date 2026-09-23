@@ -1,0 +1,34 @@
+@inherits LayoutComponentBase
+
+<div class="min-h-screen bg-md-surface text-md-on-surface font-roboto flex flex-col">
+    <header class="sticky top-0 z-30 bg-md-surface-container border-b border-md-outline-variant">
+        <div class="flex items-center gap-4 px-4 md:px-6 h-16">
+            <div class="flex items-center gap-3 min-w-0">
+                <div class="h-9 w-9 shrink-0 rounded-md-md bg-md-primary text-md-on-primary grid place-items-center text-lg font-semibold shadow-md-1">
+                    M
+                </div>
+                <div class="min-w-0">
+                    <div class="truncate text-md-title font-medium text-md-on-surface">MinGo Service Registry</div>
+                    <div class="truncate text-md-body-small text-md-on-surface-variant">Discovery &amp; lease control plane</div>
+                </div>
+            </div>
+            <div class="ml-auto hidden md:block">
+                <RenderModeBadge />
+            </div>
+        </div>
+    </header>
+
+    <div class="flex flex-1 min-h-0">
+        <nav class="hidden md:flex w-64 shrink-0 border-r border-md-outline-variant bg-md-surface-container/50 p-3">
+            <NavMenu />
+        </nav>
+
+        <main class="flex-1 min-w-0 p-4 md:p-8 overflow-y-auto">
+            @Body
+        </main>
+    </div>
+
+    <nav class="md:hidden sticky bottom-0 z-30 border-t border-md-outline-variant bg-md-surface-container">
+        <NavMenu Variant="NavMenu.NavVariant.Rail" />
+    </nav>
+</div>

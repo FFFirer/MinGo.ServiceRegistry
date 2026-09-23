@@ -1,0 +1,63 @@
+@*
+    Material Design 3 card. `Variant` controls elevation vs. filled vs. outlined surface treatment.
+*@
+
+<div class="@CardClasses @Class" style="@Style" @attributes="AdditionalAttributes">
+    @if (!string.IsNullOrEmpty(Headline))
+    {
+        <div class="px-6 pt-5 pb-2">
+            <div class="text-md-title font-medium text-md-on-surface">@Headline</div>
+            @if (!string.IsNullOrEmpty(SupportingText))
+            {
+                <div class="mt-1 text-md-body text-md-on-surface-variant">@SupportingText</div>
+            }
+        </div>
+    }
+    <div class="@(string.IsNullOrEmpty(Headline) ? "p-6" : "px-6 pb-5")">
+        @ChildContent
+    </div>
+</div>
+
+@code {
+    /// <summary>Card visual variant.</summary>
+    public enum CardVariant
+    {
+        /// <summary>Elevated surface with a subtle drop shadow.</summary>
+        Elevated,
+
+        /// <summary>Flat surface-container background.</summary>
+        Filled,
+
+        /// <summary>Outlined surface with a hairline border.</summary>
+        Outlined,
+    }
+
+    /// <summary>Optional headline text rendered above the body.</summary>
+    [Parameter] public string? Headline { get; set; }
+
+    /// <summary>Optional supporting line rendered under the headline.</summary>
+    [Parameter] public string? SupportingText { get; set; }
+
+    /// <summary>Visual variant.</summary>
+    [Parameter] public CardVariant Variant { get; set; } = CardVariant.Elevated;
+
+    /// <summary>Card body.</summary>
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>Extra CSS classes applied to the root element.</summary>
+    [Parameter] public string? Class { get; set; }
+
+    /// <summary>Inline style applied to the root element.</summary>
+    [Parameter] public string? Style { get; set; }
+
+    /// <summary>Splat target for unmatched HTML attributes.</summary>
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
+
+    private string CardClasses => Variant switch
+    {
+        CardVariant.Filled => "rounded-md-md bg-md-surface-container text-md-on-surface",
+        CardVariant.Outlined => "rounded-md-md bg-md-surface text-md-on-surface border border-md-outline-variant",
+        _ => "rounded-md-md bg-md-surface text-md-on-surface shadow-md-1",
+    };
+}

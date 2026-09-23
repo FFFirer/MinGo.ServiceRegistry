@@ -1,0 +1,22 @@
+@*
+    Small badge that reflects the current Blazor render mode. In Auto mode the badge shows
+    "Server" during SSR / interactive-server, then flips to "WebAssembly" once the client
+    bundle takes over the circuit.
+*@
+
+<span class="inline-flex items-center gap-2 h-7 px-3 rounded-md-sm text-md-label-small border @ToneClasses">
+    <span class="h-2 w-2 rounded-full @DotClasses"></span>
+    @(IsWasm ? "WebAssembly" : "Server")
+</span>
+
+@code {
+    // OperatingSystem.IsBrowser() is false on the server runtime (SSR / InteractiveServer)
+    // and true inside the Blazor WebAssembly sandbox, so it tracks Auto-mode handoff naturally.
+    private static bool IsWasm => OperatingSystem.IsBrowser();
+
+    private static string ToneClasses => IsWasm
+        ? "bg-md-primary-container text-md-on-primary-container border-md-primary/40"
+        : "bg-md-surface-variant text-md-on-surface-variant border-md-outline-variant";
+
+    private static string DotClasses => IsWasm ? "bg-md-primary" : "bg-md-outline";
+}

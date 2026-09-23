@@ -1,0 +1,58 @@
+@*
+    Navigation for the Registry dashboard. Renders as a vertical drawer list (Variant=Drawer)
+    or a horizontal bottom rail (Variant=Rail) for small screens.
+*@
+
+@if (Variant == NavVariant.Rail)
+{
+    <div class="flex items-stretch justify-around">
+        @foreach (var item in Items)
+        {
+            <NavLink href="@item.Href" Match="@item.Match"
+                     class="flex-1 flex flex-col items-center justify-center gap-1 py-2 px-3 text-md-label-small text-md-on-surface-variant hover:text-md-on-surface hover:bg-md-surface-variant/60 transition-colors"
+                     ActiveClass="!text-md-primary !bg-md-secondary-container/60 font-medium">
+                <span class="text-lg leading-none">@item.Icon</span>
+                <span>@item.Label</span>
+            </NavLink>
+        }
+    </div>
+}
+else
+{
+    <ul class="flex flex-col gap-1 w-full">
+        @foreach (var item in Items)
+        {
+            <li>
+                <NavLink href="@item.Href" Match="@item.Match"
+                         class="flex items-center gap-3 rounded-md-xl px-4 py-3 text-md-label text-md-on-surface-variant hover:bg-md-surface-variant/70 hover:text-md-on-surface transition-colors"
+                         ActiveClass="!bg-md-secondary-container !text-md-on-secondary-container font-medium">
+                    <span class="text-lg leading-none">@item.Icon</span>
+                    <span>@item.Label</span>
+                </NavLink>
+            </li>
+        }
+    </ul>
+}
+
+@code {
+    /// <summary>Navigation presentation.</summary>
+    public enum NavVariant
+    {
+        /// <summary>Vertical drawer list (desktop).</summary>
+        Drawer,
+
+        /// <summary>Horizontal bottom rail (mobile).</summary>
+        Rail,
+    }
+
+    private sealed record NavItem(string Href, string Label, string Icon, NavLinkMatch Match);
+
+    /// <summary>Layout variant.</summary>
+    [Parameter] public NavVariant Variant { get; set; } = NavVariant.Drawer;
+
+    private static readonly IReadOnlyList<NavItem> Items = new[]
+    {
+        new NavItem("/", "Services", "\u2630", NavLinkMatch.All),
+        new NavItem("/health-ui", "Runtime", "\u25CF", NavLinkMatch.Prefix),
+    };
+}

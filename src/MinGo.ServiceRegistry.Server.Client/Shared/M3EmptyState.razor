@@ -1,0 +1,46 @@
+@*
+    Material Design 3 empty state / placeholder.
+*@
+
+<div class="flex flex-col items-center justify-center gap-3 py-16 px-6 text-center @Class" style="@Style" @attributes="AdditionalAttributes">
+    @if (!string.IsNullOrEmpty(Icon))
+    {
+        <div class="text-5xl leading-none text-md-on-surface-variant opacity-70">@Icon</div>
+    }
+    @if (!string.IsNullOrEmpty(Headline))
+    {
+        <div class="text-md-title text-md-on-surface">@Headline</div>
+    }
+    @if (!string.IsNullOrEmpty(SupportingText))
+    {
+        <div class="max-w-md text-md-body text-md-on-surface-variant">@SupportingText</div>
+    }
+    @if (ChildContent is not null)
+    {
+        <div class="mt-2">@ChildContent</div>
+    }
+</div>
+
+@code {
+    /// <summary>Optional large icon/emoji.</summary>
+    [Parameter] public string? Icon { get; set; }
+
+    /// <summary>Headline text.</summary>
+    [Parameter] public string? Headline { get; set; }
+
+    /// <summary>Supporting body text.</summary>
+    [Parameter] public string? SupportingText { get; set; }
+
+    /// <summary>Optional action slot rendered below the text.</summary>
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>Extra CSS classes.</summary>
+    [Parameter] public string? Class { get; set; }
+
+    /// <summary>Inline style.</summary>
+    [Parameter] public string? Style { get; set; }
+
+    /// <summary>Splat target.</summary>
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
+}

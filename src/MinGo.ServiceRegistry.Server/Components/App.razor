@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <base href="/" />
+    <title>MinGo Service Registry</title>
+
+    @* Tailwind CSS v4 browser build (CDN). Scans the DOM at runtime; no build step required. *@
+    <script src="https://cdn.jsdelivr.net/npm/@@tailwindcss/browser@@4"></script>
+
+    @* Material Design 3 tokens exposed as Tailwind v4 @@theme variables so utilities like
+       bg-md-primary / text-md-on-surface resolve from the palette below. *@
+    <style type="text/tailwindcss">
+        @@theme {
+            --color-md-primary: #6750A4;
+            --color-md-on-primary: #FFFFFF;
+            --color-md-primary-container: #EADDFF;
+            --color-md-on-primary-container: #21005D;
+            --color-md-secondary: #625B71;
+            --color-md-on-secondary: #FFFFFF;
+            --color-md-secondary-container: #E8DEF8;
+            --color-md-on-secondary-container: #1D192B;
+            --color-md-tertiary: #7D5260;
+            --color-md-tertiary-container: #FFD8E4;
+            --color-md-surface: #FEF7FF;
+            --color-md-surface-container: #F3EDF7;
+            --color-md-surface-variant: #E7E0EC;
+            --color-md-on-surface: #1D1B20;
+            --color-md-on-surface-variant: #49454F;
+            --color-md-outline: #79747E;
+            --color-md-outline-variant: #CAC4D0;
+            --color-md-error: #B3261E;
+            --color-md-on-error: #FFFFFF;
+            --color-md-error-container: #F9DEDC;
+            --color-md-on-error-container: #410E0B;
+            --color-md-success: #2E7D32;
+            --color-md-success-container: #C8E6C9;
+            --color-md-on-success-container: #0B2E13;
+            --color-md-warning: #B26A00;
+            --color-md-warning-container: #FFEFB7;
+            --color-md-on-warning-container: #3B2400;
+
+            --radius-md-xs: 4px;
+            --radius-md-sm: 8px;
+            --radius-md-md: 12px;
+            --radius-md-lg: 16px;
+            --radius-md-xl: 28px;
+
+            --shadow-md-1: 0 1px 2px rgba(0,0,0,.30), 0 1px 3px 1px rgba(0,0,0,.15);
+            --shadow-md-2: 0 1px 2px rgba(0,0,0,.30), 0 2px 6px 2px rgba(0,0,0,.15);
+
+            --font-roboto: "Roboto", "Segoe UI", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+
+            --text-md-label-small: 0.6875rem;
+            --text-md-label: 0.8125rem;
+            --text-md-body-small: 0.75rem;
+            --text-md-body: 0.875rem;
+            --text-md-title: 1rem;
+            --text-md-headline-small: 1.25rem;
+            --text-md-headline: 1.5rem;
+        }
+
+        @@media (prefers-color-scheme: dark) {
+            @@theme {
+                --color-md-primary: #D0BCFF;
+                --color-md-on-primary: #381E72;
+                --color-md-primary-container: #4F378B;
+                --color-md-on-primary-container: #EADDFF;
+                --color-md-secondary: #CCC2DC;
+                --color-md-on-secondary: #332D41;
+                --color-md-secondary-container: #4A4458;
+                --color-md-on-secondary-container: #E8DEF8;
+                --color-md-surface: #141218;
+                --color-md-surface-container: #211F26;
+                --color-md-surface-variant: #49454F;
+                --color-md-on-surface: #E6E0E9;
+                --color-md-on-surface-variant: #CAC4D0;
+                --color-md-outline: #938F99;
+                --color-md-outline-variant: #49454F;
+                --color-md-error: #F2B8B5;
+                --color-md-error-container: #8C1D18;
+                --color-md-on-error-container: #F9DEDC;
+                --color-md-success: #A5D6A7;
+                --color-md-success-container: #1B3A20;
+                --color-md-on-success-container: #C8E6C9;
+                --color-md-warning: #FFD180;
+                --color-md-warning-container: #4A3300;
+                --color-md-on-warning-container: #FFEFB7;
+            }
+        }
+
+        @@keyframes md-indeterminate {
+            0%   { transform: translateX(-100%); }
+            50%  { transform: translateX(150%); }
+            100% { transform: translateX(300%); }
+        }
+
+        html, body {
+            height: 100%;
+            background-color: var(--color-md-surface);
+            color: var(--color-md-on-surface);
+            font-family: var(--font-roboto);
+            -webkit-font-smoothing: antialiased;
+            text-rendering: optimizeLegibility;
+        }
+    </style>
+
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
+
+    <ImportMap />
+    <HeadOutlet @rendermode="InteractiveAuto" />
+</head>
+<body class="h-full">
+    @* Global interactivity: Routes lives in the Client assembly, so it is resolvable on WebAssembly
+       and serves as the single interactive Auto root. Everything it renders (MainLayout, nav, the
+       render-mode badge and the pages) sits inside the interactive tree and hands off from Server
+       to WebAssembly once the client bundle is cached. App itself stays static SSR (it is the HTML
+       host and is never instantiated on WebAssembly). *@
+    <Routes @rendermode="InteractiveAuto" />
+
+    <script src="_framework/blazor.web.js"></script>
+</body>
+</html>

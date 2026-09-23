@@ -7,7 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\MinGo.ServiceRegistry.Hosting\MinGo.ServiceRegistry.Hosting.csproj" />
+    <ProjectReference Include="..\MinGo.ServiceRegistry.Server.Client\MinGo.ServiceRegistry.Server.Client.csproj" />
   </ItemGroup>
 
 </Project>

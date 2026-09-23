@@ -1,0 +1,71 @@
+@*
+    Material Design 3 status chip. Tone drives the container/on-container color pair.
+*@
+
+<span class="@RootClasses @Class" style="@Style" @attributes="AdditionalAttributes">
+    @if (!string.IsNullOrEmpty(Icon))
+    {
+        <span class="text-sm leading-none">@Icon</span>
+    }
+    <span>@(ChildContent ?? (RenderFragment)(b => b.AddContent(0, Label)))</span>
+</span>
+
+@code {
+    /// <summary>Chip color tone.</summary>
+    public enum ChipTone
+    {
+        /// <summary>Neutral outline; used for unknown/inactive states.</summary>
+        Neutral,
+
+        /// <summary>Green success tone; used for healthy states.</summary>
+        Success,
+
+        /// <summary>Amber warning tone; used for transitional states.</summary>
+        Warning,
+
+        /// <summary>Red error tone; used for expired/unhealthy states.</summary>
+        Danger,
+
+        /// <summary>Primary container tone; used for informational states.</summary>
+        Info,
+    }
+
+    /// <summary>Chip tone.</summary>
+    [Parameter] public ChipTone Tone { get; set; } = ChipTone.Neutral;
+
+    /// <summary>Visible label text.</summary>
+    [Parameter] public string? Label { get; set; }
+
+    /// <summary>Optional leading icon.</summary>
+    [Parameter] public string? Icon { get; set; }
+
+    /// <summary>Body override; when supplied, replaces Label.</summary>
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>Extra CSS classes.</summary>
+    [Parameter] public string? Class { get; set; }
+
+    /// <summary>Inline style.</summary>
+    [Parameter] public string? Style { get; set; }
+
+    /// <summary>Splat target.</summary>
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
+
+    private string RootClasses
+    {
+        get
+        {
+            var common = "inline-flex items-center gap-1 h-7 px-3 rounded-md-sm text-md-label-small border";
+            var tone = Tone switch
+            {
+                ChipTone.Success => "bg-md-success-container text-md-on-success-container border-md-success/40",
+                ChipTone.Warning => "bg-md-warning-container text-md-on-warning-container border-md-warning/40",
+                ChipTone.Danger => "bg-md-error-container text-md-on-error-container border-md-error/40",
+                ChipTone.Info => "bg-md-primary-container text-md-on-primary-container border-md-primary/40",
+                _ => "bg-transparent text-md-on-surface-variant border-md-outline-variant",
+            };
+            return $"{common} {tone}";
+        }
+    }
+}

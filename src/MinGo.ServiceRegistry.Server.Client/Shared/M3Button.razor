@@ -1,0 +1,119 @@
+@*
+    Material Design 3 button. Supports the four canonical variants: Filled, Tonal, Outlined, Text.
+    Renders as <button> by default; when Href is set, renders as <a>.
+*@
+
+@if (Href is not null)
+{
+    <a href="@Href" class="@RootClasses @Class" style="@Style" @attributes="AdditionalAttributes">
+        @LabelMarkup
+    </a>
+}
+else
+{
+    <button type="@ButtonType" disabled="@Disabled" class="@RootClasses @Class" style="@Style"
+            @onclick="HandleClick" @attributes="AdditionalAttributes">
+        @LabelMarkup
+    </button>
+}
+
+@code {
+    /// <summary>Button visual variant.</summary>
+    public enum ButtonVariant
+    {
+        /// <summary>High-emphasis filled button (primary container).</summary>
+        Filled,
+
+        /// <summary>Medium-emphasis tonal button (secondary container).</summary>
+        Tonal,
+
+        /// <summary>Medium-emphasis outlined button.</summary>
+        Outlined,
+
+        /// <summary>Low-emphasis text button.</summary>
+        Text,
+    }
+
+    /// <summary>Visual variant.</summary>
+    [Parameter] public ButtonVariant Variant { get; set; } = ButtonVariant.Filled;
+
+    /// <summary>Visible label text.</summary>
+    [Parameter] public string? Label { get; set; }
+
+    /// <summary>Optional leading icon (emoji or short SVG markup rendered as text).</summary>
+    [Parameter] public string? Icon { get; set; }
+
+    /// <summary>When set, renders an anchor element with this href instead of a button.</summary>
+    [Parameter] public string? Href { get; set; }
+
+    /// <summary>HTML button type when rendering as a button.</summary>
+    [Parameter] public string ButtonType { get; set; } = "button";
+
+    /// <summary>Disables interaction.</summary>
+    [Parameter] public bool Disabled { get; set; }
+
+    /// <summary>Click handler (button mode only).</summary>
+    [Parameter] public EventCallback<Microsoft.AspNetCore.Components.Web.MouseEventArgs> OnClick { get; set; }
+
+    /// <summary>Extra CSS classes applied to the root element.</summary>
+    [Parameter] public string? Class { get; set; }
+
+    /// <summary>Inline style applied to the root element.</summary>
+    [Parameter] public string? Style { get; set; }
+
+    /// <summary>Body override; when supplied, replaces Label/Icon rendering.</summary>
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>Splat target for unmatched HTML attributes.</summary>
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
+
+    private string RootClasses
+    {
+        get
+        {
+            var common = "inline-flex items-center justify-center gap-2 h-10 px-6 rounded-md-xl text-md-label select-none transition-[background-color,box-shadow,opacity] duration-150 disabled:opacity-38 disabled:pointer-events-none";
+            var variant = Variant switch
+            {
+                ButtonVariant.Tonal => "bg-md-secondary-container text-md-on-secondary-container hover:brightness-95 shadow-md-1",
+                ButtonVariant.Outlined => "bg-transparent text-md-primary border border-md-outline hover:bg-md-primary/8",
+                ButtonVariant.Text => "bg-transparent text-md-primary hover:bg-md-primary/8 px-3",
+                _ => "bg-md-primary text-md-on-primary hover:brightness-110 shadow-md-1",
+            };
+            return $"{common} {variant}";
+        }
+    }
+
+    private RenderFragment LabelMarkup => builder =>
+    {
+        if (ChildContent is not null)
+        {
+            builder.AddContent(0, ChildContent);
+            return;
+        }
+
+        var seq = 0;
+        if (!string.IsNullOrEmpty(Icon))
+        {
+            builder.OpenElement(seq++, "span");
+            builder.AddAttribute(seq++, "class", "text-lg leading-none");
+            builder.AddContent(seq++, Icon);
+            builder.CloseElement();
+        }
+
+        if (!string.IsNullOrEmpty(Label))
+        {
+            builder.OpenElement(seq++, "span");
+            builder.AddContent(seq++, Label);
+            builder.CloseElement();
+        }
+    };
+
+    private void HandleClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+    {
+        if (!Disabled && OnClick.HasDelegate)
+        {
+            _ = OnClick.InvokeAsync(args);
+        }
+    }
+}

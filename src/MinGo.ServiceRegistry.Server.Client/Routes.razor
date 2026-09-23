@@ -1,0 +1,18 @@
+@* Single interactive Auto root for the whole dashboard. Lives in the Client assembly so it is
+   resolvable on WebAssembly (a render-mode root must be a type the WASM runtime can load) and has
+   no RenderFragment parameters (unlike a layout, whose Body delegate cannot cross the SSR ->
+   interactive serialization boundary). Everything rendered below - MainLayout, the render-mode
+   badge, nav and the pages - inherits interactivity and hands off from Server to WebAssembly. *@
+<Router AppAssembly="@typeof(Routes).Assembly">
+    <Found Context="routeData">
+        <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
+        <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+    </Found>
+    <NotFound>
+        <LayoutView Layout="@typeof(MainLayout)">
+            <M3EmptyState Icon="&#128269;"
+                          Headline="Page not found"
+                          SupportingText="The requested route does not match any registered page." />
+        </LayoutView>
+    </NotFound>
+</Router>

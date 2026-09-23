@@ -1,0 +1,3 @@
+/* Placeholder stylesheet. All UI styling is delivered by the Tailwind CSS v4 browser build
+   and the Material Design 3 @theme block in Components/App.razor. This file exists so the
+   wwwroot directory is not empty and Blazor's static-asset manifest has at least one entry. */

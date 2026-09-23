@@ -1,0 +1,117 @@
+@page "/services/{ServiceName}"
+@inject RegistryApiClient Api
+@inject NavigationManager Nav
+
+<PageTitle>@(ServiceName ?? "Service") - MinGo Registry</PageTitle>
+
+<div class="flex flex-col gap-6">
+    <div class="flex flex-wrap items-end gap-4">
+        <div class="min-w-0">
+            <div class="flex items-center gap-2 text-md-body-small text-md-on-surface-variant">
+                <a href="/" class="hover:text-md-primary hover:underline">Services</a>
+                <span>/</span>
+                <span class="truncate">@ServiceName</span>
+            </div>
+            <h1 class="mt-1 text-md-headline text-md-on-surface truncate">@ServiceName</h1>
+            <p class="mt-1 text-md-body text-md-on-surface-variant">
+                Healthy, non-expired instances discoverable via
+                <code class="px-1.5 py-0.5 rounded-md-xs bg-md-surface-container text-md-on-surface-variant">GET /api/registry/services/@ServiceName/instances</code>.
+            </p>
+        </div>
+        <div class="ml-auto">
+            <M3Button Variant="M3Button.ButtonVariant.Tonal" Label="Refresh" Icon="&#8635;" OnClick="LoadAsync" Disabled="@Loading" />
+        </div>
+    </div>
+
+    @if (Error is not null)
+    {
+        <M3Card Variant="M3Card.CardVariant.Outlined" Headline="Failed to load instances" SupportingText="@Error">
+            <div class="flex gap-2">
+                <M3Button Variant="M3Button.ButtonVariant.Filled" Label="Retry" OnClick="LoadAsync" />
+                <M3Button Variant="M3Button.ButtonVariant.Text" Label="Back to services" Href="/" />
+            </div>
+        </M3Card>
+    }
+    else if (Loading && Snapshot is null)
+    {
+        <M3Card><M3Progress Label="Loading instances..." /></M3Card>
+    }
+    else if (Snapshot is { Instances.Count: 0 })
+    {
+        <M3Card>
+            <M3EmptyState Icon="&#128683;"
+                          Headline="No healthy instances"
+                          SupportingText="The service may be unregistered, or every lease has expired and is awaiting the reaper." />
+        </M3Card>
+    }
+    else if (Snapshot is not null)
+    {
+        <M3DataTable TItem="ServiceInstance" Columns="_columns" Items="Snapshot.Instances">
+            <RowTemplate Context="instance">
+                <td class="px-4 py-3 font-mono text-md-body-small text-md-on-surface">@instance.InstanceId</td>
+                <td class="px-4 py-3 text-md-on-surface-variant">@instance.Scheme</td>
+                <td class="px-4 py-3 text-md-on-surface">
+                    <a class="hover:text-md-primary hover:underline"
+                       href="@($"{instance.Scheme}://{instance.Host}:{instance.Port}")"
+                       target="_blank" rel="noopener">
+                        @instance.Host:@instance.Port
+                    </a>
+                </td>
+                <td class="px-4 py-3">
+                    <M3Chip Tone="@HealthTone(instance.Health)" Label="@instance.Health.ToString()" />
+                </td>
+            </RowTemplate>
+        </M3DataTable>
+    }
+</div>
+
+@code {
+    private static readonly IReadOnlyList<M3DataTable<ServiceInstance>.Column> _columns = new[]
+    {
+        new M3DataTable<ServiceInstance>.Column { Title = "Instance ID" },
+        new M3DataTable<ServiceInstance>.Column { Title = "Scheme" },
+        new M3DataTable<ServiceInstance>.Column { Title = "Endpoint" },
+        new M3DataTable<ServiceInstance>.Column { Title = "Health" },
+    };
+
+    /// <summary>Route parameter; the service name to inspect.</summary>
+    [Parameter] public string? ServiceName { get; set; }
+
+    private ServiceInstancesResponse? Snapshot { get; set; }
+    private bool Loading { get; set; }
+    private string? Error { get; set; }
+
+    protected override async Task OnParametersSetAsync() => await LoadAsync();
+
+    private static M3Chip.ChipTone HealthTone(ServiceHealthStatus status) => status switch
+    {
+        ServiceHealthStatus.Healthy => M3Chip.ChipTone.Success,
+        ServiceHealthStatus.Registered => M3Chip.ChipTone.Info,
+        ServiceHealthStatus.Expired => M3Chip.ChipTone.Danger,
+        _ => M3Chip.ChipTone.Neutral,
+    };
+
+    private async Task LoadAsync()
+    {
+        if (string.IsNullOrWhiteSpace(ServiceName))
+        {
+            Error = "Missing service name.";
+            return;
+        }
+
+        Loading = true;
+        Error = null;
+        try
+        {
+            Snapshot = await Api.GetInstancesAsync(ServiceName);
+        }
+        catch (HttpRequestException ex)
+        {
+            Error = ex.Message;
+        }
+        finally
+        {
+            Loading = false;
+        }
+    }
+}
