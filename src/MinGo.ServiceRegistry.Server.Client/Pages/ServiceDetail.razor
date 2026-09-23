@@ -19,7 +19,7 @@
             </p>
         </div>
         <div class="ml-auto">
-            <M3Button Variant="M3Button.ButtonVariant.Tonal" Label="Refresh" Icon="&#8635;" OnClick="LoadAsync" Disabled="@Loading" />
+            <M3Button Variant="M3Button.ButtonVariant.Tonal" Label="Refresh" Icon="↻" OnClick="LoadAsync" Disabled="@Loading" />
         </div>
     </div>
 
@@ -39,7 +39,7 @@
     else if (Snapshot is { Instances.Count: 0 })
     {
         <M3Card>
-            <M3EmptyState Icon="&#128683;"
+            <M3EmptyState Icon="🚫"
                           Headline="No healthy instances"
                           SupportingText="The service may be unregistered, or every lease has expired and is awaiting the reaper." />
         </M3Card>

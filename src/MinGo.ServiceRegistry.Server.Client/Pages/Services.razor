@@ -16,7 +16,7 @@
                 <input type="search" @bind="Filter" @bind:event="oninput" placeholder="Filter services"
                        class="h-10 w-56 md:w-72 rounded-md-xl bg-md-surface-container border border-md-outline-variant px-4 text-md-body text-md-on-surface placeholder:text-md-on-surface-variant/70 focus:outline-none focus:border-md-primary focus:ring-2 focus:ring-md-primary/30" />
             </div>
-            <M3Button Variant="M3Button.ButtonVariant.Tonal" Label="Refresh" Icon="&#8635;" OnClick="LoadAsync" Disabled="@Loading" />
+            <M3Button Variant="M3Button.ButtonVariant.Tonal" Label="Refresh" Icon="↻" OnClick="LoadAsync" Disabled="@Loading" />
         </div>
     </div>
 
@@ -35,7 +35,7 @@
     else if (ServicesSnapshot is { Count: 0 })
     {
         <M3Card>
-            <M3EmptyState Icon="&#128269;"
+            <M3EmptyState Icon="🔍"
                           Headline="No services registered"
                           SupportingText="Once a client POSTs to /api/registry/services/{name}/instances, entries appear here." />
         </M3Card>
